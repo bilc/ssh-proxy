@@ -1,0 +1,11 @@
+
+listen: "0.0.0.0:19022"
+keypath: "/home/blc/.ssh/id_rsa"
+clients:
+  - user: "demo"
+    pass: "demo"
+    serv:
+      host: "127.0.0.1"
+      port: "22"
+      user: "test"
+      pass: "test"
