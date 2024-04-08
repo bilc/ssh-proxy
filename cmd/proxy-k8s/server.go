@@ -10,42 +10,44 @@ import (
 )
 
 type ServerManager struct {
-	conf *Config
 }
 
-func NewServerManager(conf *Config) *ServerManager {
-	return &ServerManager{conf: conf}
+func NewServerManager() *ServerManager {
+	return &ServerManager{}
 }
 
 func (s *ServerManager) NewSshSession(user string) (*ssh.Session, error) {
-	client := s.conf.GetClient(user)
+	client := GlobalConfig.GetClient(user)
 	if client == nil {
 		return nil, fmt.Errorf("user %s not found", user)
 	}
-	cmd := exec.Command("/bin/bash", "-c", client.ServerConfig.Install)
-	output, err := cmd.Output()
+	log.Printf("client %v", client)
+	cmd := exec.Command("/bin/bash", "-c", client.Install)
+	err := cmd.Run()
 	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
+		log.Fatalf("cmd  %s failed with err %s\n", client.Install, err)
 	}
-	fmt.Printf("%s\n", output)
-
-	session, err := NewSshSession(client.ServerConfig.SshHost, user, client.Pass)
+	log.Println("cmd run ok")
+	session, err := newSshSession(client.SshHost, user, client.Pass)
+	log.Println("try NewsSshSession  ", err)
 	for i := 0; i < 10; i++ {
 		if err == nil {
 			break
 		}
+		log.Println("try NewsSshSession times ", i)
 		time.Sleep(time.Second * 3)
-		session, err = NewSshSession(client.ServerConfig.SshHost, user, client.Pass)
+		session, err = newSshSession(client.SshHost, user, client.Pass)
 	}
+	log.Println("try NewsSshSession  ret ", err)
 	return session, err
 }
 
 func (s *ServerManager) CloseSshSession(user string) error {
-	client := s.conf.GetClient(user)
+	client := GlobalConfig.GetClient(user)
 	if client == nil {
 		return fmt.Errorf("user %s not found", user)
 	}
-	cmd := exec.Command("/bin/bash", "-c", client.ServerConfig.Uninstall)
+	cmd := exec.Command("/bin/bash", "-c", client.Uninstall)
 	output, err := cmd.Output()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
@@ -55,7 +57,7 @@ func (s *ServerManager) CloseSshSession(user string) error {
 	return nil
 }
 
-func NewSshSession(host string, user, pass string) (*ssh.Session, error) {
+func newSshSession(host string, user, pass string) (*ssh.Session, error) {
 	// 建立SSH客户端连接
 	client, err := ssh.Dial("tcp", host, &ssh.ClientConfig{
 		User:            user,
@@ -64,7 +66,8 @@ func NewSshSession(host string, user, pass string) (*ssh.Session, error) {
 		Timeout:         time.Second * 10,
 	})
 	if err != nil {
-		log.Fatalf("SSH dial error: %s", err.Error())
+		log.Printf("SSH dial error: %s| host %s user %s pass %s", err.Error(), host, user, pass)
+		return nil, err
 	}
 
 	// 建立新会话

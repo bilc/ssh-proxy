@@ -8,16 +8,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type ServerConfig struct {
+type Client struct {
+	User      string
+	Pass      string
 	Install   string
 	Uninstall string
 	SshHost   string
-}
-
-type Client struct {
-	User         string
-	Pass         string
-	ServerConfig ServerConfig
 }
 
 type Config struct {
@@ -49,7 +45,7 @@ var GlobalServerManager *ServerManager
 func init() {
 	log.Println("init config")
 	var configFile string
-	flag.StringVar(&configFile, "config", "./static.yaml", "path to config file")
+	flag.StringVar(&configFile, "config", "./proxy-k8s.yaml", "path to config file")
 	flag.Parse()
 
 	b, err := os.ReadFile(configFile)
@@ -62,5 +58,5 @@ func init() {
 	}
 
 	log.Println("config loaded ", GlobalConfig)
-	GlobalServerManager = NewServerManager(&GlobalConfig)
+	GlobalServerManager = NewServerManager()
 }

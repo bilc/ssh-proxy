@@ -13,7 +13,7 @@ import (
 )
 
 func privateDiffie() (b ssh.Signer, err error) {
-	private, err := ioutil.ReadFile("/home/blc/.ssh/id_rsa")
+	private, err := ioutil.ReadFile(GlobalConfig.KeyPath)
 	if err != nil {
 		return
 	}

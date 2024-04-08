@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
       - name: ssh-proxy
-        image: sshserver:0.2
+        image: sshserver:0.4
         ports:
         - containerPort: 22
 ---

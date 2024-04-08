@@ -1,12 +1,10 @@
 
+
 listen: "0.0.0.0:19022"
-keypath: "/home/blc/.ssh/id_rsa"
+keypath: "~/.ssh/id_rsa"
 clients:
   - user: "blc"
     pass: "blc"
-    serverConfig: 
-      install: "helm install -n default --name=blc stable/nginx-ingress"
-      uninstall: "helm install -n default --name=blc"
-      sshHost: "blc.default"
-
-
+    install: "helm install -n default  --set-string user=blc,pass=blc  blc ./simple-server-chart"
+    uninstall: "helm uninstall -n default blc"
+    sshHost: "blc.default"

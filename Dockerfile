@@ -1,10 +1,13 @@
-FROM ubuntu:20.04 
+FROM ubuntu:22.04 
  
 #for ssh proxy
 #https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz
 COPY  linux-amd64/helm  /usr/local/bin
-COPY proxy-k8s  /usr/local/bin
-COPY /conf/proxy-k8s.yaml  /etc/
+
+RUN mkdir -p /work
+COPY proxy-k8s  /work
+COPY /conf/proxy-k8s.yaml  /work
+COPY simple-server-chart  /work/simple-server-chart
 
 #for ssh server
 RUN apt update 
